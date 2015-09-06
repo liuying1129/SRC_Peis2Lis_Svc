@@ -360,7 +360,7 @@ begin
       adotemp33.SQL.Clear;
       //不插入PeIS的样本类型，由拆分存储过程去处理（拿组合项目的默认样本类型）
       adotemp33.SQL.Add('insert into chk_con_his (patientname,sex,age,report_date,bedno,His_Unid,check_doctor,deptname,combin_id,Caseno,diagnose,Diagnosetype,typeflagcase,WorkCompany,WorkDepartment,ifMarry) values '+
-                          ' ('''+PatientName+''','''+Sex+''','''+inttostr(Age)+AgeUnit+''',:DateRegister,'''+''+''','''+inttostr(ID_Patient)+''','''+DoctorReg+''','''+'体检科'+''','''+scombin_id+''','''+PatientCardNo+''','''+''+''',''常规'',''正常'','''+Org_Name+''','''+Org_Depart+''','''+Marriage+''') ');
+                          ' ('''+PatientName+''','''+Sex+''','''+inttostr(Age)+AgeUnit+''',:DateRegister,'''+''+''','''+inttostr(ID_Patient)+''','''+DoctorReg+''','''+'体检科'+''','''+scombin_id+''','''+PatientCode+''','''+''+''',''常规'',''正常'','''+Org_Name+''','''+Org_Depart+''','''+Marriage+''') ');
       adotemp33.SQL.Add(' SELECT SCOPE_IDENTITY() AS Insert_Identity ');
       adotemp33.Parameters.ParamByName('DateRegister').Value:=DateRegister;
       try
