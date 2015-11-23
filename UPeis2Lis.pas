@@ -195,16 +195,16 @@ begin
   adotemp11.SQL.Clear;
   adotemp11.SQL.Text:='select IP.ID_Patient ,	IP.StrIDPatient ,	IP.PatientCodeHiden ,	IP.PatientCardNo ,	IP.IDCardNo ,	IP.PatientName ,	'+
                       'IP.ID_PatientArchive ,	IP.PatientArchiveNo ,	IP.PatientRequestNo ,	IP.Input_Code ,	IP.Org_Name ,	IP.Org_Depart ,	IP.Sex ,	IP.BirthDate ,	'+
-                      'IP.Age ,	IP.AgeUnit ,	IP.AgeOfReal ,	IP.Marriage ,	IP.F_Registered ,	IP.DateRegister ,	IP.DoctorReg ,	IP.ExamType_Name ,	IP.F_FeeCharged ,	'+
-                      'IP.F_Paused ,	IP.F_Transfered AS F_Transfered_IP,	IP.F_UseCodeHiden ,	IP.ParsedSuiteAndFI ,IP.ParsedSuiteAndFILab , '+
+                      'IP.Age ,	IP.AgeUnit ,	IP.AgeOfReal ,	IP.Marriage ,	IP.F_Registered ,	IP.DateRegister ,	IP.DoctorReg ,	IP.ExamType_Name ,'+//	IP.F_FeeCharged ,	
+                      'IP.F_UseCodeHiden ,	IP.ParsedSuiteAndFI ,IP.ParsedSuiteAndFILab , '+//IP.F_Paused ,	IP.F_Transfered AS F_Transfered_IP,	
                       'IPFI.ID_PatientFeeItem ,IPFI.PatientCode ,		IPFI.FeeItemRequestNo ,	IPFI.ID_Depart ,	IPFI.Depart_Name ,	IPFI.TransfterTarget ,	IPFI.ID_ExamFeeItem ,	IPFI.ExamFeeItem_Name ,	'+
-                      'IPFI.ExamFeeItem_Code ,	IPFI.LabType_Name ,	IPFI.LabType_Code ,	IPFI.F_Back_Transfered,	IPFI.F_Returned ,	IPFI.F_ResultTransfered   '+
+                      'IPFI.ExamFeeItem_Code ,	IPFI.LabType_Name ,	IPFI.LabType_Code ,	IPFI.F_Back_Transfered,	IPFI.F_Returned '+//,	IPFI.F_ResultTransfered   
                       ' from IntPatient IP '+
                       ' inner join IntPatientFeeItem IPFI '+
                       ' on IP.ID_Patient=IPFI.ID_Patient '+
-                      ' AND IP.F_FeeCharged=1 '+
+                      ' AND IPFI.F_LabSampled=1 '+
                       ' AND IPFI.TransfterTarget=''LIS'' '+
-                      ' and IP.DateRegister+0.8>getdate() ';
+                      ' and IPFI.LabSampleTime+0.8>getdate() ';
   try
     adotemp11.Open;
   except
@@ -265,7 +265,7 @@ begin
     LabType_Name:=adotemp11.fieldbyname('LabType_Name').AsString;
     LabType_Code:=adotemp11.fieldbyname('LabType_Code').AsString;
     //F_Back_Transfered:=adotemp11.fieldbyname('F_Back_Transfered').AsInteger;
-    F_Returned:=adotemp11.fieldbyname('F_Returned').AsBoolean;
+    //F_Returned:=adotemp11.fieldbyname('F_Returned').AsBoolean;
     //F_ResultTransfered:=adotemp11.fieldbyname('F_ResultTransfered').AsInteger; 
 
     {if F_Paused=1 then//PEIS禁用申请单//马工说，F_Paused不用管，基本上不会出现这种情况
@@ -408,7 +408,7 @@ begin
     begin
       sID:=adotemp66.fieldbyname('id').AsString;
 
-      if F_Returned then//PeIS退项
+      {if F_Returned then//PeIS退项.PEIS只有在采集样本前才能被退项，故不需要了
       begin
         adotemp88:=tadoquery.Create(nil);
         adotemp88.Connection:=ADOConn_Lis;
@@ -426,7 +426,7 @@ begin
         adotemp88.Free;
         adotemp66.next;
         continue;
-      end;
+      end;//}
 
       adotemp44:=tadoquery.Create(nil);
       adotemp44.Connection:=ADOConn_Lis;
@@ -469,6 +469,7 @@ begin
         end;
         adotemp22.Free;
 
+        //回写“已读取”标志。该标志对PEIS无任何控制作用，只是让PEIS知道该条记录已被读走
         adotemp444:=tadoquery.Create(nil);
         adotemp444.Connection:=ADOConn_His;
         adotemp444.Close;
