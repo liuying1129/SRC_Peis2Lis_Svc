@@ -157,6 +157,7 @@ var
   F_Returned:boolean;
   FeeItemRequestNo ,	Depart_Name ,	TransfterTarget ,ExamFeeItem_Name :string;
   ExamFeeItem_Code ,	LabType_Name ,	LabType_Code  :string;
+  LabSampleTime:TDatetime;//采样时间
 begin
   Timer1.Enabled:=false;
 
@@ -198,7 +199,7 @@ begin
                       'IP.Age ,	IP.AgeUnit ,	IP.AgeOfReal ,	IP.Marriage ,	IP.F_Registered ,	IP.DateRegister ,	IP.DoctorReg ,	IP.ExamType_Name ,'+//	IP.F_FeeCharged ,	
                       'IP.F_UseCodeHiden ,	IP.ParsedSuiteAndFI ,IP.ParsedSuiteAndFILab , '+//IP.F_Paused ,	IP.F_Transfered AS F_Transfered_IP,	
                       'IPFI.ID_PatientFeeItem ,IPFI.PatientCode ,		IPFI.FeeItemRequestNo ,	IPFI.ID_Depart ,	IPFI.Depart_Name ,	IPFI.TransfterTarget ,	IPFI.ID_ExamFeeItem ,	IPFI.ExamFeeItem_Name ,	'+
-                      'IPFI.ExamFeeItem_Code ,	IPFI.LabType_Name ,	IPFI.LabType_Code ,	IPFI.F_Back_Transfered,	IPFI.F_Returned '+//,	IPFI.F_ResultTransfered   
+                      'IPFI.ExamFeeItem_Code ,	IPFI.LabType_Name ,	IPFI.LabType_Code ,	IPFI.F_Back_Transfered,	IPFI.F_Returned,IPFI.LabSampleTime '+//,	IPFI.F_ResultTransfered   
                       ' from IntPatient IP '+
                       ' inner join IntPatientFeeItem IPFI '+
                       ' on IP.ID_Patient=IPFI.ID_Patient '+
@@ -267,6 +268,7 @@ begin
     //F_Back_Transfered:=adotemp11.fieldbyname('F_Back_Transfered').AsInteger;
     //F_Returned:=adotemp11.fieldbyname('F_Returned').AsBoolean;
     //F_ResultTransfered:=adotemp11.fieldbyname('F_ResultTransfered').AsInteger; 
+    LabSampleTime:=adotemp11.fieldbyname('LabSampleTime').AsDateTime;
 
     {if F_Paused=1 then//PEIS禁用申请单//马工说，F_Paused不用管，基本上不会出现这种情况
     begin
@@ -455,7 +457,8 @@ begin
         adotemp22.Connection:=ADOConn_Lis;
         adotemp22.Close;
         adotemp22.SQL.Clear;
-        adotemp22.SQL.Text:='insert into chk_valu_his (pkunid,pkcombin_id,Surem1,Surem2,Urine1,Urine2) values ('''+Insert_Identity+''','''+sID+''','''+inttostr(ID_Patient)+''','''+ExamFeeItem_Code+''','''+PatientCode+''','''+LabType_Code+''') ';
+        adotemp22.SQL.Text:='insert into chk_valu_his (pkunid,pkcombin_id,Surem1,Surem2,Urine1,Urine2,TakeSampleTime) values ('''+Insert_Identity+''','''+sID+''','''+inttostr(ID_Patient)+''','''+ExamFeeItem_Code+''','''+PatientCode+''','''+LabType_Code+''',:TakeSampleTime) ';
+        adotemp22.Parameters.ParamByName('TakeSampleTime').Value:=LabSampleTime;
         try
           adotemp22.ExecSQL;
         except
