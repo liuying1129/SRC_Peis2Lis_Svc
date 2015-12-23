@@ -295,7 +295,9 @@ begin
     adotemp55.Connection:=ADOConn_Lis;
     adotemp55.Close;
     adotemp55.SQL.Clear;
-    adotemp55.SQL.Text:=' select cch.unid from chk_con_his cch where cch.His_Unid='''+inttostr(ID_Patient)+''' ';
+    adotemp55.SQL.Text:=' select cch.unid from chk_con_his cch where cch.His_Unid='''+inttostr(ID_Patient)
+                       //表示未被LIS取过的申请单
+                       +''' and (select count(*) from chk_valu_his cvh2 where cvh2.pkunid=cch.unid and isnull(cvh2.itemvalue,'''')=''1'')<=0';
     try
       adotemp55.Open;
     except
@@ -316,7 +318,9 @@ begin
       adotemp333.Connection:=ADOConn_Lis;
       adotemp333.Close;
       adotemp333.SQL.Clear;
-      adotemp333.SQL.Text:=' select cvh.pkunid from chk_valu_his cvh where cvh.Surem1='''+inttostr(ID_Patient)+''' ';
+      adotemp333.SQL.Text:=' select cvh.pkunid from chk_valu_his cvh where cvh.Surem1='''+inttostr(ID_Patient)
+                           //表示未被LIS取过的申请单
+                           +''' and (select count(*) from chk_valu_his cvh2 where cvh2.pkunid=cvh.pkunid and isnull(cvh2.itemvalue,'''')=''1'')<=0';
       try
         adotemp333.Open;
       except
